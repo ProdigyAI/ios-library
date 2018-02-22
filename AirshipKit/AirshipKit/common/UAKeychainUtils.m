@@ -28,7 +28,7 @@ static NSString *cachedDeviceID_ = nil;
 
     // Set access permission - we use the keychain for it's stickiness, not security,
     // So the least permissive setting is acceptable here
-    [userDictionary setObject:(__bridge id)kSecAttrAccessibleAlways forKey:(__bridge id)kSecAttrAccessible];
+    [userDictionary setObject:(__bridge id)kSecAttrAccessibleWhenUnlockedThisDeviceOnly forKey:(__bridge id)kSecAttrAccessible];
 
     // Set username data
     [userDictionary setObject:username forKey:(__bridge id)kSecAttrAccount];
@@ -51,8 +51,8 @@ static NSString *cachedDeviceID_ = nil;
     SecItemDelete((__bridge CFDictionaryRef)searchDictionary);
 }
 
-+ (BOOL)updateKeychainValueForUsername:(NSString *)username 
-                          withPassword:(NSString *)password 
++ (BOOL)updateKeychainValueForUsername:(NSString *)username
+                          withPassword:(NSString *)password
                          forIdentifier:(NSString *)identifier {
 
     //setup search dict, use username as query param
@@ -132,7 +132,7 @@ static NSString *cachedDeviceID_ = nil;
     NSString *bundleID = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleIdentifier"];
     [searchDictionary setObject:bundleID forKey:(__bridge id)kSecAttrService];
 
-    return searchDictionary; 
+    return searchDictionary;
 }
 
 #pragma mark -
@@ -141,11 +141,11 @@ static NSString *cachedDeviceID_ = nil;
 + (NSString *)createDeviceID {
     NSString *deviceID = [NSUUID UUID].UUIDString;
 
-    NSMutableDictionary *keychainValues = [UAKeychainUtils searchDictionaryWithIdentifier:kUAKeychainDeviceIDKey];
+    NSMutableDictionary *SeeychainValues = [UAKeychainUtils searchDictionaryWithIdentifier:kUAKeychainDeviceIDKey];
 
     //set access permission - we use the keychain for its stickiness, not security,
     //so the least permissive setting is acceptable here
-    [keychainValues setObject:(__bridge id)kSecAttrAccessibleAlwaysThisDeviceOnly forKey:(__bridge id)kSecAttrAccessible];
+    [keychainValues setObject:(__bridge id)kSecAttrAccessibleWhenUnlockedThisDeviceOnly forKey:(__bridge id)kSecAttrAccessible];
 
     //set model name (username) data
     [keychainValues setObject:[UAUtils deviceModelName] forKey:(__bridge id)kSecAttrAccount];
@@ -192,15 +192,15 @@ static NSString *cachedDeviceID_ = nil;
         if (resultDataRef) {
 
             // Check if we have the old attribute type
-            if ([[[resultDict objectForKey:(__bridge id)kSecAttrAccessible] copy] isEqualToString:(__bridge NSString *)(kSecAttrAccessibleAlways)]) {
+            if ([[[resultDict objectForKey:(__bridge id)kSecAttrAccessible] copy] isEqualToString:(__bridge NSString *)(kSecAttrAccessibleAlwaysThisDeviceOnly)]) {
 
                 UA_LTRACE(@"Updating Device ID attributes");
 
-                // Update the deviceID attribute to kSecAttrAccessibleAlwaysThisDeviceOnly
+                // Update the deviceID attribute to kSecAttrAccessibleWhenUnlockedThisDeviceOnly
                 NSMutableDictionary *updateQuery = [NSMutableDictionary dictionary];
 
                 // Set the new attribute
-                [updateQuery setObject:(__bridge id)kSecAttrAccessibleAlwaysThisDeviceOnly forKey:(__bridge id)kSecAttrAccessible];
+                [updateQuery setObject:(__bridge id)kSecAttrAccessibleWhenUnlockedThisDeviceOnly forKey:(__bridge id)kSecAttrAccessible];
 
                 // Perform the update
                 OSStatus status = SecItemUpdate((__bridge CFDictionaryRef)[UAKeychainUtils searchDictionaryWithIdentifier:kUAKeychainDeviceIDKey], (__bridge CFDictionaryRef)updateQuery);
