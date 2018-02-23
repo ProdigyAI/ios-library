@@ -141,7 +141,7 @@ static NSString *cachedDeviceID_ = nil;
 + (NSString *)createDeviceID {
     NSString *deviceID = [NSUUID UUID].UUIDString;
 
-    NSMutableDictionary *SeeychainValues = [UAKeychainUtils searchDictionaryWithIdentifier:kUAKeychainDeviceIDKey];
+    NSMutableDictionary *keychainValues = [UAKeychainUtils searchDictionaryWithIdentifier:kUAKeychainDeviceIDKey];
 
     //set access permission - we use the keychain for its stickiness, not security,
     //so the least permissive setting is acceptable here
